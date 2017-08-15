@@ -5,6 +5,10 @@ from marsyas_util import *
 import os
 from flask import Flask, render_template, request, redirect, url_for, session
 import yaml
+import importlib
+
+def toBool(s):
+    return s == "True"
 
 app = Flask(__name__)
 app.debug = True
@@ -41,32 +45,55 @@ def UpdateCtrl():
         dest_key = str(data['dest_key'])
         dest_value = str(data['dest_value'])
         global_net.updControl(dest_key, dest_value)
-        return "Link Control added"
+        return "Link Control added" 
     except(error):
         print error
         raise NetworkNotCreated
 
-@app.route("/GetCtrl", methods=['POST'])
-def GetCtrl():
+#Functions involving GetCtrl
+@app.route("/FuncGetCtrl", methods=['POST'])
+def FuncGetCtrl():
     try:
         data = yaml.safe_load(request.data)
-        dest_key = str(data['dest_key'])
-        output = global_net.getControl(dest_key)
-        print output
-        return "output"
-        #return output
-    except(error):
+        Var = str(data['Var'])
+        RunMethod = str(data['RunMethod'])
+        MethodVar = str(data['MethodVar'])
+        MethodVarType = str(data['MethodVarType'])
+        IsReturn = toBool(data['IsReturn'])
+        IsTick = toBool(data['IsTick'])
+        
+        #print data
+
+        #exec_method = getattr(global_net, Func) #Setting up net.getControl()
+        #temp = exec_method(Var) #Executing net.getControl()
+        temp = global_net.getControl(Var)
+        result = getattr(temp, RunMethod) #Setting up net.getControl().Function()
+        print data
+        print IsTick
+        if(IsTick):
+            print "TICK"
+            global_net.tick()
+       
+        if(MethodVar != ""): #IE:/ not empty ""
+           module = importlib.import_module('__builtin__') #For future expansion of other types, need to change '__builtin__' to be a variable for dynamic cases
+           print "TYPE", MethodVarType
+           convert = getattr(module, MethodVarType)
+           MethodVar = convert(MethodVar) #Convert To the correct type
+           print MethodVar
+
+           result = result(MethodVar) #Run net.getControl.Function(MethodVar) || net.getControl.Function()
+        else:
+           result = result()
+        
+        if(IsReturn):
+           return str(result)
+        else:
+           return "get control"
+
+    except:
         print error
         raise NetworkNotCreated
 
-@app.route("/GetNET", methods=['POST'])
-def GetNET():
-    try:
-        print global_net
-        return global_net
-    except(error):
-        print error
-        raise NetworkNotCreated
 
 @app.errorhandler("NetworkNotCreated")
 def handle_error_networknotcreated(error):

@@ -46,6 +46,26 @@ class MarsyasClient():
         requests.post('http://{SERVERLOCATION}/{api}'.format(SERVERLOCATION=self.server, api=api), headers=self.headers, data=data)
         return
 
+    def funcgetctrl(self, Var, RunMethod, MethodVar="", MethodVarType="", IsReturn="False", IsTick="False"):
+        api = "FuncGetCtrl"
+        #Setup data packet
+        data = {}
+        data['Var'] = Var
+        data['RunMethod'] = RunMethod
+        data['MethodVar'] = MethodVar
+        data['MethodVarType'] = MethodVarType
+        data['IsReturn'] = IsReturn
+        data['IsTick'] = IsTick
+        data = json.dumps(data) 
+
+        if(bool(IsReturn)):
+            return requests.post('http://{SERVERLOCATION}/{api}'.format(SERVERLOCATION=self.server, api=api), headers=self.headers, data=data).text
+        else:
+            requests.post('http://{SERVERLOCATION}/{api}'.format(SERVERLOCATION=self.server, api=api), headers=self.headers, data=data)
+            return
+
+
+"""
     def getOutput(self, dest_key):
         api = "GetCtrl"
         #Setup data packet
@@ -61,3 +81,4 @@ class MarsyasClient():
 
         output = requests.post('http://{SERVERLOCATION}/{api}'.format(SERVERLOCATION=self.server, api=api), headers=self.headers)
         return output
+"""

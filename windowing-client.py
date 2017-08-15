@@ -41,9 +41,8 @@ spec = ["Series/MySystem",
                          "Gain/gain"]]]]]]
 
 ####################
-#client = MarFlask.client()
-#client.sendRequest(spec)
-client = MarsyasFlask.MarsyasClient("127.0.0.1:5000")
+SERVERLOCATION = "127.0.0.1:5000"
+client = MarsyasFlask.MarsyasClient(SERVERLOCATION)
 
 
 # The create function (defined in marsyas_util) takes 
@@ -104,49 +103,43 @@ client.updatectrl("Fanout/analyzers/Series/branch3/Windowing/win/mrs_string/type
 # analyzers above!). This is an alternative syntax for setting 
 # control to the syntax above for setting the window type 
 
-#net = client.getNET()
-#spectrumType = client.getOutput("mrs_string/spectrumType");
-#print spectrumType
-#spectrumType.setValue_string("decibels")
-
+client.funcgetctrl("mrs_string/spectrumType", "setValue_string", MethodVar="decibels", MethodVarType="str", IsReturn="False", IsTick="False")
 
 # We are doing something similar here. Note that this is equivalent to
 # using the client.updatectrl() method properly,
 # but it might save you some work later. After you have executed this, uncomment the last two lines of this block and
 # see what the output is like!
-freq1 = client.getOutput("mrs_real/frequency1");
-"""
-freq2 = net.getControl("mrs_real/frequency2");
-freq1.setValue_real(1500.0);
-freq2.setValue_real(3000.0);
+
+client.funcgetctrl("mrs_real/frequency1", "setValue_real", MethodVar=1500.0, MethodVarType='float', IsReturn='False')
+client.funcgetctrl("mrs_real/frequency2", "setValue_real", MethodVar=3000.0, MethodVarType='float', IsReturn='False')
 client.updatectrl("mrs_real/frequency1", 2000.0);
 client.updatectrl("mrs_real/frequency2", 4000.0);
 
-# These lines are important, because they will link an output control 
-# (the processedData) to a variable which we can easily access.
-outData1 = net.getControl("mrs_realvec/spectrum1");
-outData2 = net.getControl("mrs_realvec/spectrum2");
-outData3 = net.getControl("mrs_realvec/spectrum3");
 
-# And then, we run our network for one tick (we only need one frame!).
-net.tick()
+outData1 = client.funcgetctrl("mrs_realvec/spectrum1", "to_realvec", IsReturn = 'True', IsTick='True')
+outData2 = client.funcgetctrl("mrs_realvec/spectrum2", "to_realvec", IsReturn = 'True', IsTick='True')
+outData3 = client.funcgetctrl("mrs_realvec/spectrum3", "to_realvec", IsReturn = 'True', IsTick='True')
+
+outData1 = str(outData1).split("\n")
+outData2 = str(outData2).split("\n")
+outData3 = str(outData3).split("\n")
 
 # These commands below are for plotting.
-plot(linspace(0,11050, 257),outData1.to_realvec(), label="Rectangular")
-plot(linspace(0,11050, 257),outData2.to_realvec(), label="Hamming")
-plot(linspace(0,11050, 257),outData3.to_realvec(), label="Hanning")
+plot(linspace(0,11050, 257),outData1, label="Rectangular")
+plot(linspace(0,11050, 257),outData2, label="Hamming")
+plot(linspace(0,11050, 257),outData3, label="Hanning")
 
 xlabel("Frequency (Hz)")
 ylabel("Magnitude (dB)");
-suptitle("Marsyas windowing demo");
+suptitle("Marsyas windowing demo through Flask");
 legend()
 
 # save .svg and .ps versions of the figure 
-savefig('windowing.svg')
-savefig('windowing.ps')
+savefig('windowing-Flask.svg')
+savefig('windowing-Flask.ps')
+savefig('windowing-Flask.png')
 
 show()
 
 # Try drawing the network we are running
 # When you are finished, go to phone.py to continue the tutorial.
-"""
