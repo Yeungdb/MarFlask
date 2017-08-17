@@ -24,7 +24,7 @@ def InitNet():
         return "Network Created"
     except(error):
         print error
-        raise NetworkNotCreated
+        raise 400
 
 @app.route("/LinkCtrl", methods=['POST'])
 def LinkCtrl():
@@ -36,7 +36,7 @@ def LinkCtrl():
         return "Link Control added"
     except(error):
         print error
-        raise NetworkNotCreated
+        raise 400
 
 @app.route("/UpdateCtrl", methods=['POST'])
 def UpdateCtrl():
@@ -48,7 +48,7 @@ def UpdateCtrl():
         return "Link Control added" 
     except(error):
         print error
-        raise NetworkNotCreated
+        raise 400
 
 #Functions involving GetCtrl
 @app.route("/FuncGetCtrl", methods=['POST'])
@@ -92,10 +92,10 @@ def FuncGetCtrl():
 
     except:
         print error
-        raise NetworkNotCreated
+        raise 400
 
 
-@app.errorhandler("NetworkNotCreated")
+@app.errorhandler(400)
 def handle_error_networknotcreated(error):
     print "NNC"
     return {'message': error.message}, 400
